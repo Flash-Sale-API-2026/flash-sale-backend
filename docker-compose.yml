@@ -1,0 +1,86 @@
+services:
+  inventory-postgres:
+    image: postgres:18.3-alpine
+    container_name: flash-sale-inventory-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: inventory_service
+      POSTGRES_USER: flash_sale
+      POSTGRES_PASSWORD: flash_sale
+    ports:
+      - "54321:5432"
+    volumes:
+      - inventory-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flash_sale -d inventory_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flash-sale
+
+  order-postgres:
+    image: postgres:18.3-alpine
+    container_name: flash-sale-order-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: order_service
+      POSTGRES_USER: flash_sale
+      POSTGRES_PASSWORD: flash_sale
+    ports:
+      - "54322:5432"
+    volumes:
+      - order-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flash_sale -d order_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flash-sale
+
+  redis:
+    image: redis:8.4.2-alpine
+    container_name: flash-sale-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flash-sale
+
+  rabbitmq:
+    image: rabbitmq:4.2.4-management-alpine
+    container_name: flash-sale-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: flash_sale
+      RABBITMQ_DEFAULT_PASS: flash_sale
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_running"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - flash-sale
+
+volumes:
+  inventory-postgres-data:
+  order-postgres-data:
+  redis-data:
+  rabbitmq-data:
+
+networks:
+  flash-sale:
+    driver: bridge
