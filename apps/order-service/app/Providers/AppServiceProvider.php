@@ -2,6 +2,10 @@
 
 namespace App\Providers;
 
+use App\Services\Auth\GatewayUserResolver;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,6 +23,16 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
+        RateLimiter::for('orders', function (Request $request): Limit {
+            $userId = app(GatewayUserResolver::class)->rawUserId($request);
+
+            return Limit::perMinute(20)->by(
+                implode(':', [
+                    'orders',
+                    $userId ?: 'guest',
+                    $request->ip(),
+                ])
+            );
+        });
     }
 }

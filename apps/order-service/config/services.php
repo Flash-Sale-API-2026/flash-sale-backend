@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'gateway' => [
+        'user_id_header' => env('GATEWAY_USER_ID_HEADER', 'X-Internal-User-Id'),
+    ],
+
 ];
