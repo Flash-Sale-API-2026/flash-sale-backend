@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'auth_tokens' => [
+        'issuer' => env('JWT_ISSUER', 'flash-sale-auth'),
+        'secret' => env('JWT_SECRET', 'flash-sale-demo-jwt-secret'),
+        'access_token_ttl_minutes' => env('JWT_ACCESS_TOKEN_TTL_MINUTES', 15),
+        'refresh_token_ttl_days' => env('JWT_REFRESH_TOKEN_TTL_DAYS', 30),
+    ],
+
 ];

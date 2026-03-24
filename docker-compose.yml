@@ -1,4 +1,24 @@
 services:
+  auth-postgres:
+    image: postgres:18.3-alpine
+    container_name: flash-sale-auth-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: auth_service
+      POSTGRES_USER: flash_sale
+      POSTGRES_PASSWORD: flash_sale
+    ports:
+      - "54323:5432"
+    volumes:
+      - auth-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U flash_sale -d auth_service"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - flash-sale
+
   inventory-postgres:
     image: postgres:18.3-alpine
     container_name: flash-sale-inventory-postgres
@@ -75,7 +95,35 @@ services:
     networks:
       - flash-sale
 
+  kong:
+    image: kong:3.8
+    container_name: flash-sale-kong
+    restart: unless-stopped
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /usr/local/kong/declarative/kong.yml
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:8001
+    ports:
+      - "8080:8000"
+      - "8004:8001"
+    volumes:
+      - ./docker/kong/kong.yml:/usr/local/kong/declarative/kong.yml:ro
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+    networks:
+      - flash-sale
+
 volumes:
+  auth-postgres-data:
   inventory-postgres-data:
   order-postgres-data:
   redis-data:
