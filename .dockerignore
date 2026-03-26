@@ -1,0 +1,9 @@
+.git
+.idea
+.DS_Store
+
+apps/*/vendor
+apps/*/node_modules
+apps/*/storage/logs
+
+docker-compose.override.yml

@@ -1,4 +1,131 @@
 services:
+  auth-service:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: auth-service
+    working_dir: /var/www/app
+    command:
+      - /bin/sh
+      - /usr/local/bin/start-laravel-app.sh
+    environment:
+      APP_DIR: /var/www/app
+      APP_PORT: 8000
+      APP_URL: http://127.0.0.1:8001
+      DB_HOST: auth-postgres
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      JWT_ISSUER: ${JWT_ISSUER:-flash-sale-auth}
+      JWT_SECRET: ${JWT_SECRET:-flash-sale-demo-jwt-secret}
+    volumes:
+      - ./apps/auth-service:/var/www/app
+      - ./apps/auth-service/.env.docker:/var/www/app/.env:ro
+      - auth-vendor:/var/www/app/vendor
+      - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
+    ports:
+      - "8001:8000"
+    depends_on:
+      auth-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/up"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+      - flash-sale
+
+  inventory-service:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: inventory-service
+    working_dir: /var/www/app
+    command:
+      - /bin/sh
+      - /usr/local/bin/start-laravel-app.sh
+    environment:
+      APP_DIR: /var/www/app
+      APP_PORT: 8000
+      APP_URL: http://127.0.0.1:8002
+      DB_HOST: inventory-postgres
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      GATEWAY_USER_ID_HEADER: ${GATEWAY_USER_ID_HEADER:-X-Internal-User-Id}
+    volumes:
+      - ./apps/inventory-service:/var/www/app
+      - ./apps/inventory-service/.env.docker:/var/www/app/.env:ro
+      - inventory-vendor:/var/www/app/vendor
+      - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
+    ports:
+      - "8002:8000"
+    depends_on:
+      inventory-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/up"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+      - flash-sale
+
+  order-service:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: order-service
+    working_dir: /var/www/app
+    command:
+      - /bin/sh
+      - /usr/local/bin/start-laravel-app.sh
+    environment:
+      APP_DIR: /var/www/app
+      APP_PORT: 8000
+      APP_URL: http://127.0.0.1:8003
+      DB_HOST: order-postgres
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+      GATEWAY_USER_ID_HEADER: ${GATEWAY_USER_ID_HEADER:-X-Internal-User-Id}
+    volumes:
+      - ./apps/order-service:/var/www/app
+      - ./apps/order-service/.env.docker:/var/www/app/.env:ro
+      - order-vendor:/var/www/app/vendor
+      - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
+    ports:
+      - "8003:8000"
+    depends_on:
+      order-postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://127.0.0.1:8000/up"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+    networks:
+      - flash-sale
+
   auth-postgres:
     image: postgres:18.3-alpine
     container_name: auth-postgres
@@ -110,9 +237,9 @@ services:
       KONG_PROXY_ERROR_LOG: /dev/stderr
       KONG_ADMIN_ERROR_LOG: /dev/stderr
       KONG_ADMIN_LISTEN: 0.0.0.0:8001
-      KONG_AUTH_SERVICE_URL: ${KONG_AUTH_SERVICE_URL:-http://host.docker.internal:8001/api}
-      KONG_INVENTORY_SERVICE_URL: ${KONG_INVENTORY_SERVICE_URL:-http://host.docker.internal:8002/api}
-      KONG_ORDER_SERVICE_URL: ${KONG_ORDER_SERVICE_URL:-http://host.docker.internal:8003/api}
+      KONG_AUTH_SERVICE_URL: ${KONG_AUTH_SERVICE_URL:-http://auth-service:8000/api}
+      KONG_INVENTORY_SERVICE_URL: ${KONG_INVENTORY_SERVICE_URL:-http://inventory-service:8000/api}
+      KONG_ORDER_SERVICE_URL: ${KONG_ORDER_SERVICE_URL:-http://order-service:8000/api}
       KONG_JWT_ISSUER: ${JWT_ISSUER:-flash-sale-auth}
       KONG_JWT_SECRET: ${JWT_SECRET:-flash-sale-demo-jwt-secret}
       KONG_TRUSTED_USER_ID_HEADER: ${GATEWAY_USER_ID_HEADER:-X-Internal-User-Id}
@@ -121,8 +248,13 @@ services:
       - "127.0.0.1:8004:8001"
     volumes:
       - ./docker/kong:/usr/local/kong/dev-config:ro
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
+    depends_on:
+      auth-service:
+        condition: service_healthy
+      inventory-service:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 15s
@@ -132,8 +264,11 @@ services:
       - flash-sale
 
 volumes:
+  auth-vendor:
   auth-postgres-data:
+  inventory-vendor:
   inventory-postgres-data:
+  order-vendor:
   order-postgres-data:
   redis-data:
   rabbitmq-data:

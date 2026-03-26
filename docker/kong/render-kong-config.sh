@@ -27,7 +27,10 @@ do
   require_var "$required_var"
 done
 
-lua_block="$(sed "s/__KONG_TRUSTED_USER_ID_HEADER__/${KONG_TRUSTED_USER_ID_HEADER}/g" "$lua_source_path" | sed 's/^/                    /')"
+lua_block="$(
+  sed "s/__KONG_TRUSTED_USER_ID_HEADER__/${KONG_TRUSTED_USER_ID_HEADER}/g" "$lua_source_path" \
+    | awk 'NR == 1 { print; next } { print "                    " $0 }'
+)"
 LUA_BLOCK="$lua_block"
 
 export LUA_BLOCK

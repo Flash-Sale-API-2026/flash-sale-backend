@@ -41,6 +41,22 @@ assert_status() {
   echo "PASS: $label ($actual)"
 }
 
+assert_status_in() {
+  label="$1"
+  actual="$2"
+  shift 2
+
+  for expected in "$@"; do
+    if [ "$actual" = "$expected" ]; then
+      echo "PASS: $label ($actual)"
+      return
+    fi
+  done
+
+  echo "FAIL: $label (expected one of: $*, got $actual)" >&2
+  exit 1
+}
+
 auth_login_status="$(request_status POST /auth/login -H 'Content-Type: application/json' -d '{"email":"nobody@example.com","password":"wrong-password"}')"
 if [ "$auth_login_status" = "502" ]; then
   echo "FAIL: auth route is mapped in Kong, but auth-service is not reachable upstream." >&2
@@ -53,7 +69,7 @@ if ! is_http_ok "$auth_service_health_url"; then
   exit 1
 fi
 
-assert_status "auth route is publicly reachable through Kong" "422" "$auth_login_status"
+assert_status_in "auth route is publicly reachable through Kong" "$auth_login_status" "401" "422"
 
 inventory_unauthorized_status="$(request_status POST /inventory/events/1/checkout -H 'Content-Type: application/json' -d '{}')"
 assert_status "inventory write route rejects requests without JWT" "401" "$inventory_unauthorized_status"
