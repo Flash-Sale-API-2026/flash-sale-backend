@@ -1,7 +1,7 @@
 services:
   auth-postgres:
     image: postgres:18.3-alpine
-    container_name: flash-sale-auth-postgres
+    container_name: auth-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: auth_service
@@ -21,7 +21,7 @@ services:
 
   inventory-postgres:
     image: postgres:18.3-alpine
-    container_name: flash-sale-inventory-postgres
+    container_name: inventory-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: inventory_service
@@ -41,7 +41,7 @@ services:
 
   order-postgres:
     image: postgres:18.3-alpine
-    container_name: flash-sale-order-postgres
+    container_name: order-postgres
     restart: unless-stopped
     environment:
       POSTGRES_DB: order_service
@@ -61,7 +61,7 @@ services:
 
   redis:
     image: redis:8.4.2-alpine
-    container_name: flash-sale-redis
+    container_name: redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -77,7 +77,7 @@ services:
 
   rabbitmq:
     image: rabbitmq:4.2.4-management-alpine
-    container_name: flash-sale-rabbitmq
+    container_name: rabbitmq
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: flash_sale
@@ -97,7 +97,7 @@ services:
 
   kong:
     image: kong:3.8
-    container_name: flash-sale-kong
+    container_name: kong
     restart: unless-stopped
     environment:
       KONG_DATABASE: "off"
