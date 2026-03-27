@@ -13,6 +13,10 @@ if [ ! -f composer.json ]; then
   exit 1
 fi
 
+if [ -z "${APP_KEY:-}" ]; then
+  export APP_KEY="base64:$(php -r 'echo base64_encode(random_bytes(32));')"
+fi
+
 current_lock_hash=""
 
 if [ -f composer.lock ]; then

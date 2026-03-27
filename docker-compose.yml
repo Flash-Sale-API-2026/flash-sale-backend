@@ -9,6 +9,7 @@ services:
       - /bin/sh
       - /usr/local/bin/start-laravel-app.sh
     environment:
+      APP_KEY: ${AUTH_APP_KEY:-}
       APP_DIR: /var/www/app
       APP_PORT: 8000
       APP_URL: http://127.0.0.1:8001
@@ -52,6 +53,7 @@ services:
       - /bin/sh
       - /usr/local/bin/start-laravel-app.sh
     environment:
+      APP_KEY: ${INVENTORY_APP_KEY:-}
       APP_DIR: /var/www/app
       APP_PORT: 8000
       APP_URL: http://127.0.0.1:8002
@@ -94,6 +96,7 @@ services:
       - /bin/sh
       - /usr/local/bin/start-laravel-app.sh
     environment:
+      APP_KEY: ${ORDER_APP_KEY:-}
       APP_DIR: /var/www/app
       APP_PORT: 8000
       APP_URL: http://127.0.0.1:8003
