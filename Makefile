@@ -1,4 +1,4 @@
-.PHONY: help build up down restart ps logs smoke
+.PHONY: help build up rebuild down restart ps logs smoke
 
 DOCKER_COMPOSE := docker compose
 
@@ -6,6 +6,7 @@ help:
 	@echo "Available targets:"
 	@echo "  make build    - Build all containers"
 	@echo "  make up       - Start the full local stack"
+	@echo "  make rebuild  - Rebuild images and recreate the stack"
 	@echo "  make down     - Stop the stack"
 	@echo "  make restart  - Recreate and restart the stack"
 	@echo "  make ps       - Show container status"
@@ -16,7 +17,10 @@ build:
 	$(DOCKER_COMPOSE) build
 
 up:
-	$(DOCKER_COMPOSE) up -d --build
+	$(DOCKER_COMPOSE) up -d
+
+rebuild:
+	$(DOCKER_COMPOSE) up -d --build --force-recreate
 
 down:
 	$(DOCKER_COMPOSE) down
