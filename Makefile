@@ -1,9 +1,10 @@
-.PHONY: help build up rebuild down restart ps logs smoke
+.PHONY: help init-env build up rebuild down restart ps logs smoke
 
 DOCKER_COMPOSE := docker compose
 
 help:
 	@echo "Available targets:"
+	@echo "  make init-env - Create missing local env files from examples"
 	@echo "  make build    - Build all containers"
 	@echo "  make up       - Start the full local stack"
 	@echo "  make rebuild  - Rebuild images and recreate the stack"
@@ -13,19 +14,25 @@ help:
 	@echo "  make logs     - Tail logs for the stack"
 	@echo "  make smoke    - Run Kong smoke test"
 
+init-env:
+	@test -f .env || cp .env.example .env
+	@test -f apps/auth-service/.env || cp apps/auth-service/.env.example apps/auth-service/.env
+	@test -f apps/inventory-service/.env || cp apps/inventory-service/.env.example apps/inventory-service/.env
+	@test -f apps/order-service/.env || cp apps/order-service/.env.example apps/order-service/.env
+
 build:
 	$(DOCKER_COMPOSE) build
 
-up:
+up: init-env
 	$(DOCKER_COMPOSE) up -d
 
-rebuild:
+rebuild: init-env
 	$(DOCKER_COMPOSE) up -d --build --force-recreate
 
 down:
 	$(DOCKER_COMPOSE) down
 
-restart:
+restart: init-env
 	$(DOCKER_COMPOSE) up -d --force-recreate
 
 ps:

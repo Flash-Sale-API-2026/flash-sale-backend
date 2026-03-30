@@ -9,21 +9,10 @@ services:
       - /bin/sh
       - /usr/local/bin/start-laravel-app.sh
     environment:
-      APP_KEY: ${AUTH_APP_KEY:-}
       APP_DIR: /var/www/app
       APP_PORT: 8000
-      APP_URL: http://127.0.0.1:8001
-      DB_HOST: auth-postgres
-      DB_PORT: 5432
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      JWT_ISSUER: ${JWT_ISSUER:-flash-sale-auth}
-      JWT_SECRET: ${JWT_SECRET:-flash-sale-demo-jwt-secret}
     volumes:
       - ./apps/auth-service:/var/www/app
-      - ./apps/auth-service/.env.docker:/var/www/app/.env:ro
       - auth-vendor:/var/www/app/vendor
       - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
     ports:
@@ -53,20 +42,10 @@ services:
       - /bin/sh
       - /usr/local/bin/start-laravel-app.sh
     environment:
-      APP_KEY: ${INVENTORY_APP_KEY:-}
       APP_DIR: /var/www/app
       APP_PORT: 8000
-      APP_URL: http://127.0.0.1:8002
-      DB_HOST: inventory-postgres
-      DB_PORT: 5432
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      GATEWAY_USER_ID_HEADER: ${GATEWAY_USER_ID_HEADER:-X-Internal-User-Id}
     volumes:
       - ./apps/inventory-service:/var/www/app
-      - ./apps/inventory-service/.env.docker:/var/www/app/.env:ro
       - inventory-vendor:/var/www/app/vendor
       - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
     ports:
@@ -96,20 +75,10 @@ services:
       - /bin/sh
       - /usr/local/bin/start-laravel-app.sh
     environment:
-      APP_KEY: ${ORDER_APP_KEY:-}
       APP_DIR: /var/www/app
       APP_PORT: 8000
-      APP_URL: http://127.0.0.1:8003
-      DB_HOST: order-postgres
-      DB_PORT: 5432
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
-      GATEWAY_USER_ID_HEADER: ${GATEWAY_USER_ID_HEADER:-X-Internal-User-Id}
     volumes:
       - ./apps/order-service:/var/www/app
-      - ./apps/order-service/.env.docker:/var/www/app/.env:ro
       - order-vendor:/var/www/app/vendor
       - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
     ports:
@@ -158,7 +127,7 @@ services:
       POSTGRES_USER: flash_sale
       POSTGRES_PASSWORD: flash_sale
     ports:
-      - "54321:5432"
+      - "54324:5432"
     volumes:
       - inventory-postgres-data:/var/lib/postgresql/data
     healthcheck:
