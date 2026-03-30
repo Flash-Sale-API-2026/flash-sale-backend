@@ -71,6 +71,9 @@ fi
 
 assert_status_in "auth route is publicly reachable through Kong" "$auth_login_status" "401" "422"
 
+inventory_read_status="$(request_status GET /inventory/events)"
+assert_status "inventory read route is publicly reachable through Kong" "200" "$inventory_read_status"
+
 inventory_unauthorized_status="$(request_status POST /inventory/events/1/checkout -H 'Content-Type: application/json' -d '{}')"
 assert_status "inventory write route rejects requests without JWT" "401" "$inventory_unauthorized_status"
 

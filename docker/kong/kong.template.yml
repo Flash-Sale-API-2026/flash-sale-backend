@@ -19,7 +19,13 @@ services:
   - name: inventory-service
     url: __KONG_INVENTORY_SERVICE_URL__
     routes:
-      - name: inventory-service-route
+      - name: inventory-service-read-route
+        methods:
+          - GET
+        paths:
+          - /inventory
+        strip_path: true
+      - name: inventory-service-write-route
         methods:
           - POST
         paths:

@@ -79,6 +79,10 @@ Current write route:
 Current internal route:
 - `POST /api/internal/tickets/{ticket}/reservation/confirm`
 
+Current public read routes:
+- `GET /inventory/events`
+- `GET /inventory/events/{id}`
+
 ### Order Service
 Purpose:
 - create orders

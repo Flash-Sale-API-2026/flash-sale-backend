@@ -6,6 +6,7 @@ Basic local smoke test for the Kong development gateway.
 
 What it checks:
 - `/auth/login` is publicly reachable through Kong
+- public `GET /inventory/events` is reachable without JWT
 - protected inventory write route rejects requests without JWT
 - protected order write route rejects requests without JWT
 
