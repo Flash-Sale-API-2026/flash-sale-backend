@@ -22,7 +22,6 @@ class StoreOrderRequest extends FormRequest
         return [
             'authenticated_user_id' => ['required', 'integer', 'min:1'],
             'ticket_id' => ['required', 'integer', 'min:1'],
-            'amount' => ['required', 'numeric', 'min:0.01'],
         ];
     }
 
@@ -34,14 +33,13 @@ class StoreOrderRequest extends FormRequest
     }
 
     /**
-     * @return array{user_id: int, ticket_id: int, amount: string}
+     * @return array{user_id: int, ticket_id: int}
      */
     public function orderData(): array
     {
         return [
             'user_id' => (int) $this->validated('authenticated_user_id'),
             'ticket_id' => (int) $this->validated('ticket_id'),
-            'amount' => number_format((float) $this->validated('amount'), 2, '.', ''),
         ];
     }
 

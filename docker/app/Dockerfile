@@ -8,7 +8,7 @@ RUN apt-get update \
         libpq-dev \
         libxml2-dev \
         unzip \
-    && docker-php-ext-install bcmath mbstring pcntl pdo_pgsql xml \
+    && docker-php-ext-install bcmath mbstring pcntl pdo_pgsql sockets xml \
     && pecl install redis \
     && docker-php-ext-enable redis \
     && rm -rf /var/lib/apt/lists/*

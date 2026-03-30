@@ -40,4 +40,8 @@ fi
 
 php artisan migrate --force --graceful
 
-php artisan serve --host=0.0.0.0 --port="$app_port"
+if [ "$#" -gt 0 ]; then
+  exec "$@"
+fi
+
+exec php artisan serve --host=0.0.0.0 --port="$app_port"

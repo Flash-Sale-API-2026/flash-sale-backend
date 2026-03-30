@@ -1,4 +1,4 @@
-.PHONY: help init-env build up rebuild down restart ps logs smoke
+.PHONY: help init-env build up rebuild down restart ps logs smoke smoke-debezium queue-depth debezium-logs consumer-logs
 
 DOCKER_COMPOSE := docker compose
 
@@ -13,6 +13,10 @@ help:
 	@echo "  make ps       - Show container status"
 	@echo "  make logs     - Tail logs for the stack"
 	@echo "  make smoke    - Run Kong smoke test"
+	@echo "  make smoke-debezium - Run end-to-end Debezium smoke test"
+	@echo "  make queue-depth    - Show RabbitMQ queue depth for the orders queue"
+	@echo "  make debezium-logs  - Tail Debezium logs"
+	@echo "  make consumer-logs  - Tail inventory order consumer logs"
 
 init-env:
 	@test -f .env || cp .env.example .env
@@ -43,3 +47,15 @@ logs:
 
 smoke:
 	./scripts/smoke-test-kong.sh
+
+smoke-debezium:
+	./scripts/smoke-test-debezium.sh
+
+queue-depth:
+	./scripts/queue-depth.sh
+
+debezium-logs:
+	$(DOCKER_COMPOSE) logs -f --tail=100 debezium
+
+consumer-logs:
+	$(DOCKER_COMPOSE) logs -f --tail=100 inventory-order-consumer

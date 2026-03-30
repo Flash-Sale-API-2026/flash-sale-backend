@@ -4,17 +4,18 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class OutboxMessage extends Model
+class InboxMessage extends Model
 {
-    public $timestamps = false;
+    public const STATUS_PROCESSED = 'processed';
+    public const STATUS_REJECTED = 'rejected';
 
     protected $fillable = [
         'event_id',
-        'aggregate_type',
-        'aggregate_id',
-        'type',
+        'event_type',
         'payload',
-        'created_at',
+        'status',
+        'failure_reason',
+        'processed_at',
     ];
 
     /**
@@ -23,9 +24,8 @@ class OutboxMessage extends Model
     protected function casts(): array
     {
         return [
-            'event_id' => 'string',
             'payload' => 'array',
-            'created_at' => 'datetime',
+            'processed_at' => 'datetime',
         ];
     }
 }

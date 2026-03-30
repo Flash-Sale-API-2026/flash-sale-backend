@@ -65,6 +65,33 @@ services:
     networks:
       - flash-sale
 
+  inventory-order-consumer:
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+    container_name: inventory-order-consumer
+    working_dir: /var/www/app
+    command:
+      - /bin/sh
+      - /usr/local/bin/start-laravel-app.sh
+      - php
+      - artisan
+      - inventory:consume-order-events
+    environment:
+      APP_DIR: /var/www/app
+    restart: unless-stopped
+    volumes:
+      - ./apps/inventory-service:/var/www/app
+      - inventory-vendor:/var/www/app/vendor
+      - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
+    depends_on:
+      inventory-service:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    networks:
+      - flash-sale
+
   order-service:
     build:
       context: .
@@ -141,6 +168,14 @@ services:
   order-postgres:
     image: postgres:18.3-alpine
     container_name: order-postgres
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+      - -c
+      - max_replication_slots=4
+      - -c
+      - max_wal_senders=4
     restart: unless-stopped
     environment:
       POSTGRES_DB: order_service
@@ -178,19 +213,35 @@ services:
     image: rabbitmq:4.2.4-management-alpine
     container_name: rabbitmq
     restart: unless-stopped
-    environment:
-      RABBITMQ_DEFAULT_USER: flash_sale
-      RABBITMQ_DEFAULT_PASS: flash_sale
     ports:
       - "5672:5672"
       - "15672:15672"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
+      - ./docker/rabbitmq/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+      - ./docker/rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
     healthcheck:
       test: ["CMD", "rabbitmq-diagnostics", "check_running"]
       interval: 15s
       timeout: 10s
       retries: 5
+    networks:
+      - flash-sale
+
+  debezium:
+    image: quay.io/debezium/server:3.4.2.Final
+    container_name: debezium
+    restart: unless-stopped
+    volumes:
+      - ./docker/debezium:/debezium/config:ro
+      - debezium-data:/debezium/data
+    depends_on:
+      order-postgres:
+        condition: service_healthy
+      order-service:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
     networks:
       - flash-sale
 
@@ -242,6 +293,7 @@ volumes:
   inventory-postgres-data:
   order-vendor:
   order-postgres-data:
+  debezium-data:
   redis-data:
   rabbitmq-data:
 

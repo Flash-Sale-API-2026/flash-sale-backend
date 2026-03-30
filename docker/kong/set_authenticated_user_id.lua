@@ -32,11 +32,14 @@ if not decoded then
   return
 end
 
-local cjson = require("cjson.safe")
-local payload = cjson.decode(decoded)
+local user_id = decoded:match('"sub"%s*:%s*"([^"]+)"')
 
-if not payload or not payload.sub then
+if not user_id then
+  user_id = decoded:match('"sub"%s*:%s*([0-9]+)')
+end
+
+if not user_id then
   return
 end
 
-kong.service.request.set_header("__KONG_TRUSTED_USER_ID_HEADER__", tostring(payload.sub))
+kong.service.request.set_header("__KONG_TRUSTED_USER_ID_HEADER__", tostring(user_id))

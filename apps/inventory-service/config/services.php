@@ -39,4 +39,18 @@ return [
         'user_id_header' => env('GATEWAY_USER_ID_HEADER', 'X-Internal-User-Id'),
     ],
 
+    'internal' => [
+        'token_header' => env('INTERNAL_SERVICE_TOKEN_HEADER', 'X-Internal-Service-Token'),
+        'token' => env('INTERNAL_SERVICE_TOKEN'),
+    ],
+
+    'rabbitmq' => [
+        'host' => env('RABBITMQ_HOST', 'rabbitmq'),
+        'port' => env('RABBITMQ_PORT', 5672),
+        'user' => env('RABBITMQ_USER', 'guest'),
+        'password' => env('RABBITMQ_PASSWORD', 'guest'),
+        'vhost' => env('RABBITMQ_VHOST', '/'),
+        'order_events_queue' => env('RABBITMQ_ORDER_EVENTS_QUEUE', 'orders'),
+    ],
+
 ];

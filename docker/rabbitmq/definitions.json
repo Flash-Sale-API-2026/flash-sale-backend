@@ -1,0 +1,68 @@
+{
+  "users": [
+    {
+      "name": "flash_sale",
+      "password_hash": "jNx636nFDnq7Hb0ktZt+z8ZloaErzdvdvlpjukYsGPPX19WF",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": [
+        "administrator"
+      ],
+      "limits": {}
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/",
+      "metadata": {
+        "description": "Default virtual host",
+        "tags": [],
+        "default_queue_type": "classic"
+      },
+      "limits": []
+    }
+  ],
+  "permissions": [
+    {
+      "user": "flash_sale",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "topic_permissions": [],
+  "parameters": [],
+  "policies": [],
+  "queues": [
+    {
+      "name": "orders",
+      "vhost": "/",
+      "durable": true,
+      "auto_delete": false,
+      "type": "classic",
+      "arguments": {
+        "x-queue-type": "classic"
+      }
+    }
+  ],
+  "exchanges": [
+    {
+      "name": "orders",
+      "vhost": "/",
+      "type": "direct",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "bindings": [
+    {
+      "source": "orders",
+      "vhost": "/",
+      "destination": "orders",
+      "destination_type": "queue",
+      "routing_key": "orders",
+      "arguments": {}
+    }
+  ]
+}

@@ -39,4 +39,13 @@ return [
         'user_id_header' => env('GATEWAY_USER_ID_HEADER', 'X-Internal-User-Id'),
     ],
 
+    'internal' => [
+        'token_header' => env('INTERNAL_SERVICE_TOKEN_HEADER', 'X-Internal-Service-Token'),
+        'token' => env('INTERNAL_SERVICE_TOKEN'),
+    ],
+
+    'inventory' => [
+        'internal_base_url' => env('INVENTORY_INTERNAL_BASE_URL', 'http://inventory-service:8000/api/internal'),
+    ],
+
 ];
