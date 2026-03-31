@@ -19,7 +19,9 @@ This project is intentionally shaped as a microservices demo with production-sty
 - RabbitMQ `4.2`
 - Kong Gateway `3.8` for local API gateway duties
 - Debezium Server `3.4.2.Final` for WAL-based outbox delivery
+- `k6` for repeatable local contention proof
 - Docker Compose for local development
+- GitHub Actions CI for automated test and smoke verification
 - Kubernetes / GitOps infrastructure in a separate infra repository
 
 ## 3. Core Architecture
@@ -224,6 +226,8 @@ Implemented:
 - request validation via Form Requests
 - response formatting via Resources
 - rate limiting on protected write routes
+- repeatable `k6` load-test path for the reservation contention scenario
+- GitHub Actions CI for app tests and integration smoke checks
 
 Still pending or future work:
 - outbox cleanup / retention strategy after Debezium delivery

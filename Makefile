@@ -1,4 +1,4 @@
-.PHONY: help init-env build up rebuild down restart ps logs smoke smoke-debezium queue-depth debezium-logs consumer-logs
+.PHONY: help init-env build up rebuild down restart ps logs smoke smoke-debezium queue-depth debezium-logs consumer-logs loadtest
 
 DOCKER_COMPOSE := docker compose
 
@@ -14,6 +14,7 @@ help:
 	@echo "  make logs     - Tail logs for the stack"
 	@echo "  make smoke    - Run Kong smoke test"
 	@echo "  make smoke-debezium - Run end-to-end Debezium smoke test"
+	@echo "  make loadtest       - Run k6 checkout contention proof"
 	@echo "  make queue-depth    - Show RabbitMQ queue depth for the orders queue"
 	@echo "  make debezium-logs  - Tail Debezium logs"
 	@echo "  make consumer-logs  - Tail inventory order consumer logs"
@@ -50,6 +51,9 @@ smoke:
 
 smoke-debezium:
 	./scripts/smoke-test-debezium.sh
+
+loadtest:
+	sh ./scripts/run-k6-checkout-load-test.sh
 
 queue-depth:
 	./scripts/queue-depth.sh

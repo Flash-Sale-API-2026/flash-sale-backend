@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tests:
+    name: App Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start local stack
+        run: make up
+
+      - name: Show running containers
+        run: docker compose ps
+
+      - name: Run auth-service tests
+        run: docker compose exec -T auth-service php artisan test
+
+      - name: Run inventory-service tests
+        run: docker compose exec -T inventory-service php artisan test
+
+      - name: Run order-service tests
+        run: docker compose exec -T order-service php artisan test
+
+      - name: Dump container status on failure
+        if: failure()
+        run: docker compose ps
+
+      - name: Dump recent logs on failure
+        if: failure()
+        run: docker compose logs --tail=200
+
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v
+
+  integration-smoke:
+    name: Integration Smoke
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    needs: tests
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start local stack
+        run: make up
+
+      - name: Show running containers
+        run: docker compose ps
+
+      - name: Run Kong smoke test
+        run: make smoke
+
+      - name: Run Debezium smoke test
+        run: make smoke-debezium
+        env:
+          DEBEZIUM_WAIT_TIMEOUT_SECONDS: 60
+
+      - name: Dump container status on failure
+        if: failure()
+        run: docker compose ps
+
+      - name: Dump recent logs on failure
+        if: failure()
+        run: docker compose logs --tail=200
+
+      - name: Stop stack
+        if: always()
+        run: docker compose down -v

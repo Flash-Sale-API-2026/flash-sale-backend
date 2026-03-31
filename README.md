@@ -156,6 +156,7 @@ Everything else stays internal to Docker Compose.
 make up
 make smoke
 make smoke-debezium
+make loadtest
 ```
 
 Useful commands:
@@ -163,11 +164,23 @@ Useful commands:
 ```bash
 make ps
 make logs
+make loadtest
 make queue-depth
 make debezium-logs
 make consumer-logs
 make down
 ```
+
+## CI
+
+GitHub Actions pipeline lives in [`/Users/yevhenii/PhpstormProjects/flash-sale-backend/.github/workflows/ci.yaml`](/Users/yevhenii/PhpstormProjects/flash-sale-backend/.github/workflows/ci.yaml#L1).
+
+Current CI stages:
+
+- `App Tests` — runs `auth-service`, `inventory-service`, and `order-service` test suites
+- `Integration Smoke` — starts the full stack and runs `make smoke` plus `make smoke-debezium`
+
+The repeatable `k6` load proof currently stays as a local/manual demo command, not a default CI gate.
 
 ## Demo Script
 
@@ -178,6 +191,32 @@ Minimal local demo:
    public auth route, public inventory read route, protected write routes.
 3. Run `make smoke-debezium` to verify the full booking lifecycle:
    register -> reserve -> order -> outbox -> Debezium -> RabbitMQ -> inventory sold.
+4. Run `make loadtest` to prove that concurrent reservation pressure does not oversell tickets.
+
+### Load Test Proof
+
+`make loadtest` runs a repeatable reservation contention scenario with `k6`:
+
+- seeds a fresh event with a configurable number of tickets
+- registers one authenticated user per test iteration
+- sends concurrent checkout requests through Kong
+- validates that final `reserved + sold` never exceeds the event ticket count
+
+Example observed local result:
+
+- `50` tickets
+- `200` checkout attempts
+- `100` virtual users
+- `50` successful reservations
+- `150` sold-out responses
+- `0` oversell
+- total test time around `3.6s`
+
+Useful overrides:
+
+```bash
+LOADTEST_TICKETS=50 LOADTEST_ITERATIONS=250 LOADTEST_VUS=100 LOADTEST_SETUP_TIMEOUT=5m make loadtest
+```
 
 ## Example Message Contract
 
@@ -205,6 +244,7 @@ Implemented well enough for a strong backend architecture demo:
 - authentication and gateway-trusted identity
 - public read API for events
 - high-contention reservation path
+- repeatable k6-based reservation contention proof
 - order creation with transactional outbox
 - Debezium-based event delivery
 - RabbitMQ consumer with inbox/idempotency handling

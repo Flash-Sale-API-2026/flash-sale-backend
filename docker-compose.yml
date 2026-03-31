@@ -271,6 +271,20 @@ services:
     networks:
       - flash-sale
 
+  k6:
+    image: grafana/k6:0.49.0
+    container_name: flash-sale-k6
+    profiles:
+      - loadtest
+    working_dir: /scripts
+    command:
+      - run
+      - /scripts/checkout-contention.js
+    volumes:
+      - ./tests/load:/scripts:ro
+    networks:
+      - flash-sale
+
 volumes:
   auth-vendor:
   auth-postgres-data:

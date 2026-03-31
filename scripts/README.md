@@ -56,10 +56,33 @@ Usage:
 ./scripts/queue-depth.sh
 ```
 
+### `run-k6-checkout-load-test.sh`
+
+Runs the repeatable reservation contention proof with `k6`.
+
+What it does:
+- seeds a fresh inventory event with a configurable number of tickets
+- registers a unique authenticated user for each load-test iteration
+- sends concurrent `POST /inventory/events/{event}/checkout` requests through Kong
+- verifies the final event summary still matches the no-oversell expectation
+
+Usage:
+
+```bash
+sh ./scripts/run-k6-checkout-load-test.sh
+```
+
+Optional:
+
+```bash
+LOADTEST_TICKETS=50 LOADTEST_ITERATIONS=250 LOADTEST_VUS=100 LOADTEST_SETUP_TIMEOUT=5m sh ./scripts/run-k6-checkout-load-test.sh
+```
+
 ### Helpful Make targets
 
 ```bash
 make smoke-debezium
+make loadtest
 make queue-depth
 make debezium-logs
 make consumer-logs
