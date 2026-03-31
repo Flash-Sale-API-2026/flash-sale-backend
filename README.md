@@ -235,6 +235,7 @@ Current documented integration event:
 ## Additional Context
 
 - architecture notes: [`/Users/yevhenii/PhpstormProjects/flash-sale-backend/ARCHITECTURE_CONTEXT.md`](/Users/yevhenii/PhpstormProjects/flash-sale-backend/ARCHITECTURE_CONTEXT.md)
+- ADR index: [`/Users/yevhenii/PhpstormProjects/flash-sale-backend/docs/adr/README.md`](/Users/yevhenii/PhpstormProjects/flash-sale-backend/docs/adr/README.md)
 - scripts reference: [`/Users/yevhenii/PhpstormProjects/flash-sale-backend/scripts/README.md`](/Users/yevhenii/PhpstormProjects/flash-sale-backend/scripts/README.md)
 
 ## Current Scope
