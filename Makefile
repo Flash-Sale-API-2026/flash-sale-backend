@@ -1,6 +1,7 @@
 .PHONY: help init-env build up rebuild down restart ps logs smoke smoke-debezium queue-depth debezium-logs consumer-logs loadtest
 
 DOCKER_COMPOSE := docker compose
+DOCKER_UP_WAIT_FLAGS := -d --wait --wait-timeout 180
 
 help:
 	@echo "Available targets:"
@@ -29,16 +30,16 @@ build:
 	$(DOCKER_COMPOSE) build
 
 up: init-env
-	$(DOCKER_COMPOSE) up -d
+	$(DOCKER_COMPOSE) up $(DOCKER_UP_WAIT_FLAGS)
 
 rebuild: init-env
-	$(DOCKER_COMPOSE) up -d --build --force-recreate
+	$(DOCKER_COMPOSE) up $(DOCKER_UP_WAIT_FLAGS) --build --force-recreate
 
 down:
 	$(DOCKER_COMPOSE) down
 
 restart: init-env
-	$(DOCKER_COMPOSE) up -d --force-recreate
+	$(DOCKER_COMPOSE) up $(DOCKER_UP_WAIT_FLAGS) --force-recreate
 
 ps:
 	$(DOCKER_COMPOSE) ps
