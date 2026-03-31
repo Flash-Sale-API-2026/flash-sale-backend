@@ -214,6 +214,7 @@ Implemented:
 - isolated Postgres per service
 - Kong local gateway setup
 - auth service with register / login / refresh
+- public inventory read API for events
 - inventory reservation flow with Redis lock and `SKIP LOCKED`
 - order creation with transactional outbox insert
 - Debezium local setup for PostgreSQL WAL -> RabbitMQ delivery
@@ -227,7 +228,6 @@ Implemented:
 Still pending or future work:
 - outbox cleanup / retention strategy after Debezium delivery
 - richer message contracts between services
-- read-side/query endpoints for public event browsing
 - payment flow
 - Kubernetes-native gateway and deployment config in the infra repository
 
