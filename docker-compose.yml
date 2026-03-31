@@ -15,8 +15,6 @@ services:
       - ./apps/auth-service:/var/www/app
       - auth-vendor:/var/www/app/vendor
       - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
-    ports:
-      - "8001:8000"
     depends_on:
       auth-postgres:
         condition: service_healthy
@@ -48,8 +46,6 @@ services:
       - ./apps/inventory-service:/var/www/app
       - inventory-vendor:/var/www/app/vendor
       - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
-    ports:
-      - "8002:8000"
     depends_on:
       inventory-postgres:
         condition: service_healthy
@@ -108,8 +104,6 @@ services:
       - ./apps/order-service:/var/www/app
       - order-vendor:/var/www/app/vendor
       - ./docker/app/start-laravel-app.sh:/usr/local/bin/start-laravel-app.sh:ro
-    ports:
-      - "8003:8000"
     depends_on:
       order-postgres:
         condition: service_healthy
@@ -133,8 +127,6 @@ services:
       POSTGRES_DB: auth_service
       POSTGRES_USER: flash_sale
       POSTGRES_PASSWORD: flash_sale
-    ports:
-      - "54323:5432"
     volumes:
       - auth-postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -153,8 +145,6 @@ services:
       POSTGRES_DB: inventory_service
       POSTGRES_USER: flash_sale
       POSTGRES_PASSWORD: flash_sale
-    ports:
-      - "54324:5432"
     volumes:
       - inventory-postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -181,8 +171,6 @@ services:
       POSTGRES_DB: order_service
       POSTGRES_USER: flash_sale
       POSTGRES_PASSWORD: flash_sale
-    ports:
-      - "54322:5432"
     volumes:
       - order-postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -197,8 +185,6 @@ services:
     image: redis:8.4.2-alpine
     container_name: redis
     restart: unless-stopped
-    ports:
-      - "6379:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -214,7 +200,6 @@ services:
     container_name: rabbitmq
     restart: unless-stopped
     ports:
-      - "5672:5672"
       - "15672:15672"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq

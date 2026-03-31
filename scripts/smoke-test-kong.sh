@@ -3,7 +3,6 @@
 set -eu
 
 base_url="${KONG_BASE_URL:-http://127.0.0.1:8080}"
-auth_service_health_url="${AUTH_SERVICE_HEALTH_URL:-http://127.0.0.1:8001/up}"
 
 require_command() {
   if ! command -v "$1" >/dev/null 2>&1; then
@@ -13,12 +12,7 @@ require_command() {
 }
 
 require_command curl
-
-is_http_ok() {
-  url="$1"
-  status="$(curl -sS -o /dev/null -w '%{http_code}' "$url" || true)"
-  [ "$status" = "200" ]
-}
+require_command docker
 
 request_status() {
   method="$1"
@@ -57,15 +51,17 @@ assert_status_in() {
   exit 1
 }
 
+service_running() {
+  service="$1"
+  docker compose ps --status running "$service" 2>/dev/null | awk 'NR > 1 { found = 1 } END { exit(found ? 0 : 1) }'
+}
+
 auth_login_status="$(request_status POST /auth/login -H 'Content-Type: application/json' -d '{"email":"nobody@example.com","password":"wrong-password"}')"
 if [ "$auth_login_status" = "502" ]; then
   echo "FAIL: auth route is mapped in Kong, but auth-service is not reachable upstream." >&2
-  echo "Start auth-service locally and retry. Expected health URL: $auth_service_health_url" >&2
-  exit 1
-fi
-
-if ! is_http_ok "$auth_service_health_url"; then
-  echo "FAIL: auth-service is not running locally at $auth_service_health_url" >&2
+  if ! service_running auth-service; then
+    echo "Current Docker Compose stack does not have a running auth-service container." >&2
+  fi
   exit 1
 fi
 
